@@ -147,3 +147,68 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));
+
+
+
+
+const http = require('http');
+const url = require('url');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+
+const SECRET_KEY = "supersecret"; // store in .env in production
+let users = []; // In-memory storage
+
+const sendResponse = (res, status, data) => {
+    res.writeHead(status, { "Content-Type": "application/json" });
+    res.end(JSON.stringify(data));
+};
+
+const parseBody = (req) => new Promise((resolve) => {
+    let body = '';
+    req.on('data', chunk => body += chunk);
+    req.on('end', () => resolve(JSON.parse(body)));
+});
+
+const server = http.createServer(async (req, res) => {
+    const parsedUrl = url.parse(req.url, true);
+
+    // REGISTER
+    if (parsedUrl.pathname === '/register' && req.method === 'POST') {
+        const { username, password } = await parseBody(req);
+        const hashedPassword = await bcrypt.hash(password, 10);
+        users.push({ username, password: hashedPassword });
+        return sendResponse(res, 201, { message: "User registered" });
+    }
+
+    // LOGIN
+    if (parsedUrl.pathname === '/login' && req.method === 'POST') {
+        const { username, password } = await parseBody(req);
+        const user = users.find(u => u.username === username);
+        if (!user) return sendResponse(res, 401, { error: "Invalid credentials" });
+
+        const isValid = await bcrypt.compare(password, user.password);
+        if (!isValid) return sendResponse(res, 401, { error: "Invalid credentials" });
+
+        const token = jwt.sign({ username }, SECRET_KEY, { expiresIn: '1h' });
+        return sendResponse(res, 200, { token });
+    }
+
+    // PROTECTED ROUTE
+    if (parsedUrl.pathname === '/profile' && req.method === 'GET') {
+        const authHeader = req.headers['authorization'];
+        if (!authHeader) return sendResponse(res, 401, { error: "No token provided" });
+
+        const token = authHeader.split(' ')[1];
+        try {
+            const decoded = jwt.verify(token, SECRET_KEY);
+            return sendResponse(res, 200, { message: "Welcome!", user: decoded.username });
+        } catch {
+            return sendResponse(res, 403, { error: "Invalid token" });
+        }
+    }
+
+    sendResponse(res, 404, { error: "Not Found" });
+});
+
+server.listen(3000, () => console.log("Server running at http://localhost:3000"));
