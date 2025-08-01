@@ -212,3 +212,80 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(3000, () => console.log("Server running at http://localhost:3000"));
+
+
+
+//AddToCard
+
+const http = require('http');
+const url = require('url');
+
+const PORT = 3000;
+
+// Dummy products
+const products = [
+    { id: 1, name: "Laptop", price: 60000 },
+    { id: 2, name: "Headphones", price: 2000 },
+    { id: 3, name: "Mouse", price: 800 }
+];
+
+// In-memory cart
+let cart = [];
+
+// Helper: Send JSON response
+const sendResponse = (res, status, data) => {
+    res.writeHead(status, { "Content-Type": "application/json" });
+    res.end(JSON.stringify(data));
+};
+
+// Helper: Parse body
+const parseBody = (req) => new Promise((resolve) => {
+    let body = '';
+    req.on('data', chunk => body += chunk);
+    req.on('end', () => resolve(body ? JSON.parse(body) : {}));
+});
+
+const server = http.createServer(async (req, res) => {
+    const parsedUrl = url.parse(req.url, true);
+    const id = parsedUrl.pathname.split('/')[2];
+
+    // Get all products
+    if (parsedUrl.pathname === '/products' && req.method === 'GET') {
+        return sendResponse(res, 200, products);
+    }
+
+    // View cart
+    if (parsedUrl.pathname === '/cart' && req.method === 'GET') {
+        return sendResponse(res, 200, cart);
+    }
+
+    // Add to cart
+    if (parsedUrl.pathname === '/cart' && req.method === 'POST') {
+        const { productId, quantity } = await parseBody(req);
+        const product = products.find(p => p.id === productId);
+        if (!product) return sendResponse(res, 404, { error: "Product not found" });
+
+        const existingItem = cart.find(item => item.productId === productId);
+        if (existingItem) {
+            existingItem.quantity += quantity;
+        } else {
+            cart.push({ productId, name: product.name, price: product.price, quantity });
+        }
+        return sendResponse(res, 201, { message: "Added to cart", cart });
+    }
+
+    // Remove from cart
+    if (parsedUrl.pathname.startsWith('/cart/') && req.method === 'DELETE') {
+        const index = cart.findIndex(item => item.productId == id);
+        if (index !== -1) {
+            cart.splice(index, 1);
+            return sendResponse(res, 200, { message: "Item removed", cart });
+        }
+        return sendResponse(res, 404, { error: "Item not found in cart" });
+    }
+
+    // Default
+    sendResponse(res, 404, { error: "Not Found" });
+});
+
+server.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));
