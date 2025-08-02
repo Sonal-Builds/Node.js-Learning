@@ -289,3 +289,106 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));
+
+
+
+// 1. Explain the Node.js event loop in detail.
+// Follow-ups:
+
+// What are the different phases of the event loop?
+
+// How do process.nextTick(), Promise.resolve(), and setImmediate() differ?
+
+// What happens if a CPU-intensive task blocks the loop?
+
+// 2. How would you design a scalable API rate limiter in Node.js?
+// Hints:
+
+// Sliding window vs fixed window vs token bucket.
+
+// Using Redis for distributed rate limiting.
+
+// How to prevent abuse in a serverless environment?
+
+// 3. How does Node.js handle concurrency with a single thread?
+// Follow-ups:
+
+// When does Node create worker threads?
+
+// How do child processes differ from worker threads?
+
+// When should you offload work to a queue or a separate service?
+
+// 4. How would you secure a Node.js API?
+// Expected points:
+
+// Rate limiting & throttling.
+
+// Sanitizing inputs (XSS, SQL injection).
+
+// JWT security (short expiry + refresh tokens).
+
+// Using Helmet, CORS, and CSRF protection.
+
+// 5. How do you implement a job queue in Node.js?
+// Hints:
+
+// Bull/BullMQ with Redis.
+
+// Ensuring job retries & backoff strategies.
+
+// Scaling workers across multiple instances.
+
+// When to use queues instead of direct processing?
+
+// 6. How would you handle large file uploads/downloads in Node.js?
+// Follow-ups:
+
+// Streaming vs buffering.
+
+// Backpressure handling.
+
+// Using S3 presigned URLs for large files.
+
+// 7. How do you debug memory leaks in Node.js?
+// Hints:
+
+// Using --inspect with Chrome DevTools.
+
+// Heap snapshots & garbage collection analysis.
+
+// Detecting event listener leaks (EventEmitter.setMaxListeners).
+
+// 8. Design a shopping cart service for millions of users.
+// Expected points:
+
+// Stateless API vs user-session-based storage.
+
+// Storing carts in Redis vs DB.
+
+// Ensuring atomic operations (adding/removing items).
+
+// Handling cart expiration & concurrency issues.
+
+// 9. How would you implement authentication & session management at scale?
+// Hints:
+
+// Stateless JWT vs stateful sessions.
+
+// Storing refresh tokens securely.
+
+// Revoking tokens (blacklist vs short-lived tokens).
+
+// Handling multi-device login.
+
+// 10. How would you structure a Node.js microservice architecture?
+// Follow-ups:
+
+// Communication: REST vs gRPC vs message queues.
+
+// Service discovery & API Gateway.
+
+// Centralized logging & monitoring.
+
+// Deployment strategies (containers, Kubernetes).
+
