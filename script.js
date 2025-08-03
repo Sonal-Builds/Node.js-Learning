@@ -392,3 +392,79 @@ server.listen(PORT, () => console.log(`Server running at http://localhost:${PORT
 
 // Deployment strategies (containers, Kubernetes).
 
+1. Install MongoDB & Dependencies
+First, install the MongoDB Node.js driver or Mongoose (ODM library):
+
+bash
+Copy
+Edit
+npm init -y
+npm install mongoose
+2. Connect to MongoDB
+Create a file server.js:
+
+js
+Copy
+Edit
+const mongoose = require('mongoose');
+
+// Replace with your MongoDB URL
+const uri = 'mongodb://127.0.0.1:27017/mydatabase'; 
+
+// Connect to MongoDB
+mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(() => console.log('MongoDB connected'))
+    .catch(err => console.error('MongoDB connection error:', err));
+If you’re using MongoDB Atlas (cloud):
+Replace uri with your connection string from Atlas, e.g.
+mongodb+srv://username:password@cluster0.mongodb.net/mydatabase.
+
+3. Define a Schema & Model
+js
+Copy
+Edit
+// Create a schema
+const userSchema = new mongoose.Schema({
+    name: String,
+    email: String,
+    age: Number
+});
+
+// Create a model
+const User = mongoose.model('User', userSchema);
+4. Perform CRUD Operations
+js
+Copy
+Edit
+// CREATE
+async function createUser() {
+    const user = new User({ name: 'Arun', email: 'arun@example.com', age: 32 });
+    await user.save();
+    console.log('User created:', user);
+}
+
+// READ
+async function getUsers() {
+    const users = await User.find();
+    console.log('All users:', users);
+}
+
+// UPDATE
+async function updateUser(id) {
+    const updated = await User.findByIdAndUpdate(id, { age: 33 }, { new: true });
+    console.log('Updated user:', updated);
+}
+
+// DELETE
+async function deleteUser(id) {
+    await User.findByIdAndDelete(id);
+    console.log('User deleted');
+}
+
+// Run functions
+createUser();
+5. Run the Server
+bash
+Copy
+Edit
+node server.js
